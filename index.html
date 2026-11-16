@@ -1,149 +1,281 @@
-
 <!DOCTYPE html>
 <html lang="ca">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#172554">
-<title>Agenda Personal EMI</title>
+<meta name="theme-color" content="#082f70">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>EMI · Agenda personal</title>
 <style>
+:root{--navy:#082f70;--blue:#1769ff;--bg:#eef6ff;--ink:#172b4d;--muted:#60758f;--line:#d7e6f7;--teal:#00b8b0;--orange:#ff8a24}
 *{box-sizing:border-box}
-body{margin:0;background:#f1f5f9;color:#1e293b;font-family:Arial,sans-serif}
-header{background:#172554;color:white;padding:25px 18px;border-radius:0 0 22px 22px}
-header h1{margin:0;font-size:25px}
-header p{margin:8px 0 0;color:#dbeafe}
-main{padding:16px;max-width:650px;margin:auto}
-.card{background:white;padding:17px;border-radius:15px;margin-bottom:15px;box-shadow:0 2px 8px #00000010}
-h2{font-size:18px;margin-top:0}
-input,button{font-size:16px;padding:12px;border-radius:9px}
-input{width:100%;border:1px solid #cbd5e1;margin:5px 0 12px}
-button{border:0;background:#2563eb;color:white;cursor:pointer}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,sans-serif}
+header{position:relative;overflow:hidden;background:radial-gradient(circle at 90% 10%,#168bff 0,transparent 34%),linear-gradient(125deg,#071b49 0%,#104aa0 58%,#087f91 100%);color:white;padding:27px 20px 25px;border-radius:0 0 28px 28px;box-shadow:0 9px 24px #0b36702b}
+header:after{content:"";position:absolute;width:190px;height:190px;border:2px solid #ffffff20;border-radius:50%;right:-70px;bottom:-115px;box-shadow:0 0 0 18px #ffffff0b,0 0 0 38px #ffffff08;pointer-events:none}
+.header-top{display:flex;align-items:center;gap:13px;position:relative;z-index:1}
+.brand-mark{width:55px;height:55px;object-fit:cover;border-radius:16px;box-shadow:0 5px 16px #00143c66;flex:none}
+header h1{margin:0;font-size:25px;letter-spacing:.1px}header p{margin:10px 0 0;color:#dbeafe;line-height:1.4;position:relative;z-index:1}
+.header-tag{display:inline-flex;margin-top:13px;padding:5px 10px;border-radius:20px;background:#ffffff1b;border:1px solid #ffffff30;color:#e5faff;font-size:11px;font-weight:700;letter-spacing:.5px;position:relative;z-index:1}
+main{padding:14px;max-width:760px;margin:auto}
+.card{background:white;padding:16px;border-radius:15px;margin-bottom:14px;box-shadow:0 2px 8px #00000010}
+h2{font-size:18px;margin:0 0 12px}
+button,select,input,textarea{font:inherit;font-size:16px;border-radius:9px}
+button{border:0;background:var(--blue);color:white;padding:10px 12px;cursor:pointer}
 button:active{opacity:.8}
-.add{width:100%;font-weight:bold}
-.voice{background:#0f766e;width:100%;margin-top:8px}
-.task{padding:12px;border-bottom:1px solid #e2e8f0}
-.task strong{display:block;margin-bottom:5px}
-.task small{color:#64748b}
-.task button{padding:7px 10px;margin:8px 5px 0 0;font-size:13px}
+input,select,textarea{width:100%;border:1px solid #cbd5e1;padding:11px;margin:5px 0 11px;background:white;color:var(--ink)}
+textarea{min-height:65px;resize:vertical}
+label{display:block;font-size:14px;font-weight:600;margin-top:3px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.actions button{flex:1}
+.secondary{background:#475569}.green{background:#15803d}.teal{background:#0f766e}.red{background:#dc2626}
+.small{font-size:13px;color:var(--muted)}
+.pill{display:inline-block;border-radius:30px;padding:4px 9px;font-size:12px;font-weight:bold;margin:2px 5px 2px 0}
+.p-urgent{background:#fee2e2;color:#991b1b}.p-important{background:#ffedd5;color:#9a3412}.p-low{background:#dcfce7;color:#166534}.p-away{background:#ede9fe;color:#5b21b6}
+.calendar-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.calendar-head strong{text-transform:capitalize;text-align:center;flex:1}
+.calendar-head button{padding:8px 12px}
+.switch{display:flex;gap:6px;margin-bottom:10px}.switch button{flex:1;background:#e2e8f0;color:#334155}.switch button.active{background:var(--navy);color:white}
+.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.dayname{text-align:center;font-size:11px;color:var(--muted);padding:5px 0;font-weight:bold}
+.day{border:1px solid var(--line);background:#fff;color:var(--ink);min-height:62px;padding:5px 3px;text-align:left;position:relative;font-size:13px}
+.day.muted{opacity:.38}.day.today{border:2px solid var(--blue)}.day.selected{background:#dbeafe;border-color:var(--blue)}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin:3px 2px 0 0}
+.dot.red{background:#dc2626}.dot.orange{background:#f97316}.dot.green{background:#16a34a}.dot.purple{background:#7c3aed}.dot.blue{background:#2563eb}
+.event{border-left:5px solid var(--blue);padding:10px 10px;margin:8px 0;background:#f8fafc;border-radius:8px}
+.event.urgent{border-color:#dc2626}.event.important{border-color:#f97316}.event.low{border-color:#16a34a}.event.away{border-color:#7c3aed}
+.event strong{display:block;margin-bottom:4px}.event small{color:var(--muted)}
+.event button{font-size:12px;padding:6px 8px;margin:7px 5px 0 0}
 .done strong{text-decoration:line-through;color:#94a3b8}
-.delete{background:#dc2626}
-.complete{background:#15803d}
-footer{text-align:center;color:#64748b;padding:15px;font-size:13px}
+.notice{padding:10px;border-radius:9px;background:#eff6ff;color:#1e40af;font-size:13px;line-height:1.4}
+footer{text-align:center;color:var(--muted);padding:15px;font-size:13px}
+@media(max-width:420px){main{padding:10px}.card{padding:13px}.day{min-height:54px;font-size:12px}.grid2{gap:7px}}
 </style>
 </head>
 <body>
 <header>
-<h1>📅 Agenda Personal EMI</h1>
-<p>Organitza el teu dia, les teves cites i els teus projectes</p>
+  <div class="header-top">
+    <img class="brand-mark" src="icon-192.png" alt="Icona EMI">
+    <h1>EMI · Agenda personal</h1>
+  </div>
+  <p>Organitza el teu dia, les teves cites i els teus projectes</p>
+  <span class="header-tag">PLANIFICA · ORGANITZA · GAUDEIX</span>
 </header>
 <main>
-<div class="card">
-<h2>📆 avui</h2>
-<div id="today"></div>
-</div>
-<div class="card">
-<h2>➕ Nova tasca</h2>
-<form id="taskForm">
-Descripció
-<input id="name" placeholder="¿Què has de fer?" required>
-<label>Data</label>
-<input id="date" type="date" required>
-<label>Hora</label>
-<input id="time" type="time">
-<label>Notes</label>
-<input id="notes" placeholder="Detalls (opcional)">
-<button class="add" type="submit">Desa a la meva agenda</button>
-</form>
-<button class="voice" id="voice" type="button">🎙️ Afegeix per veu</button>
-</div>
-<div class="card">
-<h2>🏓 Activitats habituals</h2>
-<p>Ping-pong: dilluns i dimecres a las 18:15.</p>
-<p>Recorda mantenir les activitats organitzades.</p>
-</div>
-<div class="card">
-<h2>📋 Les meves tasques</h2>
-<div id="tasks"></div>
-</div>
+  <section class="card">
+    <h2>📆 Avui</h2>
+    <div id="today"></div>
+    <div class="actions" style="margin-top:10px">
+      <button id="notifyBtn" class="teal" type="button">Activar avisos</button>
+      <button id="readDayBtn" class="secondary" type="button">Llegir el meu dia</button>
+    </div>
+    <p class="small" id="notifyStatus">Els avisos del navegador funcionen mentre l'agenda està oberta. Consulta la nota sobre notificacions al final.</p>
+  </section>
+
+  <section class="card">
+    <h2>🗓️ Calendari</h2>
+    <div class="switch">
+      <button id="monthMode" class="active" type="button">Mes</button>
+      <button id="weekMode" type="button">Setmana</button>
+    </div>
+    <div class="calendar-head">
+      <button id="prev" class="secondary" type="button" aria-label="Període anterior">‹</button>
+      <strong id="periodTitle"></strong>
+      <button id="next" class="secondary" type="button" aria-label="Període següent">›</button>
+    </div>
+    <div id="calendar" class="calendar"></div>
+    <p class="small">Vermell: molt important · Taronja: important · Verd: poc important · Violeta: fora de Sant Sadurní</p>
+    <div id="selectedDay"></div>
+  </section>
+
+  <section class="card">
+    <h2>➕ Nova tasca, cita o projecte</h2>
+    <form id="taskForm">
+      <label for="name">Descripció</label>
+      <input id="name" placeholder="Què has de fer?" required>
+      <div class="grid2">
+        <div><label for="kind">Tipus</label>
+          <select id="kind"><option value="tasca">Tasca</option><option value="cita">Cita</option><option value="projecte">Projecte</option></select>
+        </div>
+        <div><label for="priority">Importància</label>
+          <select id="priority"><option value="urgent">Molt important</option><option value="important">Important</option><option value="low" selected>Poc important</option></select>
+        </div>
+      </div>
+      <label for="place">Lloc</label>
+      <select id="place"><option value="local">Sant Sadurní d'Anoia</option><option value="away">Fora de Sant Sadurní</option></select>
+      <div class="grid2">
+        <div><label for="date">Data</label><input id="date" type="date" required></div>
+        <div><label for="time">Hora</label><input id="time" type="time"></div>
+      </div>
+      <label for="notes">Notes</label>
+      <textarea id="notes" placeholder="Detalls (opcional)"></textarea>
+      <button class="add" style="width:100%;font-weight:bold" type="submit">Desa a la meva agenda</button>
+    </form>
+    <button class="voice" id="voice" type="button" style="background:#0f766e;width:100%;margin-top:8px">🎙️ Afegeix per veu</button>
+    <p class="small" id="voiceStatus">Pots dictar la descripció en català si el navegador admet el reconeixement de veu.</p>
+  </section>
+
+  <section class="card">
+    <h2>🏓 Activitats habituals</h2>
+    <p>Ping-pong: dilluns i dimecres a les 18:15. Avís programat 30 minuts abans.</p>
+    <p>Dinar: cada dia a les 13:30. Avís programat a les 13:00.</p>
+    <p class="small">Aquestes activitats es mostren automàticament al calendari; no cal afegir-les cada setmana.</p>
+  </section>
+
+  <section class="card">
+    <h2>📋 Les meves tasques i cites</h2>
+    <div class="grid2">
+      <div><label for="filterKind">Filtra per tipus</label><select id="filterKind"><option value="all">Tot</option><option value="tasca">Tasques</option><option value="cita">Cites</option><option value="projecte">Projectes</option></select></div>
+      <div><label for="filterStatus">Estat</label><select id="filterStatus"><option value="pending">Pendents</option><option value="done">Completades</option><option value="all">Totes</option></select></div>
+    </div>
+    <div id="tasks"></div>
+  </section>
+  <section class="card">
+    <h2>🔔 Com funcionen els avisos?</h2>
+    <p class="notice">L'agenda pot mostrar notificacions quan està oberta i el navegador les permet. Una pàgina web estàtica no pot garantir avisos exactes quan el navegador o el mòbil tanquen l'agenda. Per tenir avisos fiables en segon pla caldrà afegir notificacions push amb un servei compatible i configurar-lo. No donis per fet que els avisos ja funcionen amb l'agenda tancada.</p>
+  </section>
 </main>
-<footer>Agenda Personal EMI · El meu espai personal</footer>
+<footer>EMI · Agenda personal · Les dades es guarden en aquest dispositiu</footer>
 <script>
 const $ = id => document.getElementById(id);
-let tasks = JSON.parse(localStorage.getItem("agendaEMI") || "[]");
-function save(){
- localStorage.setItem("agendaEMI",JSON.stringify(tasks));
- render();
+const STORE = "agendaEMI";
+let tasks = [];
+try { tasks = JSON.parse(localStorage.getItem(STORE) || "[]"); if (!Array.isArray(tasks)) tasks=[]; } catch(e) { tasks=[]; }
+let shownMonth = new Date(); shownMonth.setDate(1);
+let selectedDate = dateKey(new Date());
+let mode = "month";
+const pad=n=>String(n).padStart(2,"0");
+function dateKey(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());}
+function parseDate(s){const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d);}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x;}
+function catalanDate(d,opts){return d.toLocaleDateString("ca-ES",opts);}
+function save(){localStorage.setItem(STORE,JSON.stringify(tasks));renderAll();}
+function recurringEvents(start,end){
+ const out=[];
+ for(let d=new Date(start);d<=end;d=addDays(d,1)){
+  const key=dateKey(d),day=d.getDay();
+  if(day===1||day===3)out.push({id:"ping-"+key,name:"Ping-pong",date:key,time:"18:15",kind:"activitat",priority:"low",place:"local",notes:"Activitat habitual",recurring:true});
+  out.push({id:"dinar-"+key,name:"Dinar",date:key,time:"13:30",kind:"recordatori",priority:"low",place:"local",notes:"Recordatori diari",recurring:true});
+ }
+ return out;
 }
-function render(){
- $("today").textContent =
- new Date().toLocaleDateString("ca-ES",
- {weekday:"long",day:"numeric",month:"long",year:"numeric"});
- const list=$("tasks");
- list.innerHTML="";
- if(!tasks.length){
- list.innerHTML="<p>Encara no tens tasques. Afegeix la primera!</p>";
- return;
+function allEvents(start,end){return tasks.filter(t=>t.date>=dateKey(start)&&t.date<=dateKey(end)).concat(recurringEvents(start,end));}
+function renderToday(){
+ const now=new Date();
+ $("today").textContent=catalanDate(now,{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+}
+function renderCalendar(){
+ const cal=$("calendar");cal.innerHTML="";
+ const names=["Dl","Dt","Dc","Dj","Dv","Ds","Dg"];
+ names.forEach(n=>{const el=document.createElement("div");el.className="dayname";el.textContent=n;cal.appendChild(el);});
+ let start,end;
+ if(mode==="month"){
+  const first=new Date(shownMonth.getFullYear(),shownMonth.getMonth(),1);
+  const offset=(first.getDay()+6)%7;
+  start=addDays(first,-offset);
+  end=addDays(start,41);
+  $("periodTitle").textContent=catalanDate(first,{month:"long",year:"numeric"});
+ }else{
+  const base=parseDate(selectedDate);const offset=(base.getDay()+6)%7;
+  start=addDays(base,-offset);end=addDays(start,6);
+  $("periodTitle").textContent=catalanDate(start,{day:"numeric",month:"short"})+" – "+catalanDate(end,{day:"numeric",month:"long",year:"numeric"});
  }
- tasks.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
- tasks.forEach(t=>{
- const div=document.createElement("div");
- div.className="task"+(t.done?" done":"");
- const title=document.createElement("strong");
- title.textContent=t.name;
- const info=document.createElement("small");
- info.textContent=t.date+" · "+(t.time||"Sense hora")+
- (t.notes?" · "+t.notes:"");
- const complete=document.createElement("button");
- complete.className="complete";
- complete.textContent=t.done?"Pendent":"Completada";
- complete.onclick=()=>{
- t.done=!t.done;
- save();
- };
- const del=document.createElement("button");
- del.className="delete";
- del.textContent="Elimina";
- del.onclick=()=>{
- if(confirm("¿Vols eliminar aquesta tasca?")){
- tasks=tasks.filter(x=>x.id!==t.id);
- save();
+ const events=allEvents(start,end);
+ for(let d=new Date(start);d<=end;d=addDays(d,1)){
+  const key=dateKey(d),cell=document.createElement("button");
+  cell.type="button";cell.className="day"+(d.getMonth()!==shownMonth.getMonth()&&mode==="month"?" muted":"")+(key===dateKey(new Date())?" today":"")+(key===selectedDate?" selected":"");
+  const num=document.createElement("div");num.textContent=d.getDate();cell.appendChild(num);
+  events.filter(e=>e.date===key).slice(0,4).forEach(e=>{
+   const dot=document.createElement("i");dot.className="dot "+(e.place==="away"?"purple":e.priority==="urgent"?"red":e.priority==="important"?"orange":e.priority==="low"?"green":"blue");cell.appendChild(dot);
+  });
+  cell.onclick=()=>{selectedDate=key;shownMonth=new Date(d.getFullYear(),d.getMonth(),1);renderCalendar();renderSelected();};
+  cal.appendChild(cell);
  }
- };
- div.append(title,info,document.createElement("br"),complete,del);
- list.appendChild(div);
+ renderSelected();
+}
+function renderSelected(){
+ const box=$("selectedDay");box.innerHTML="";
+ const d=parseDate(selectedDate);const heading=document.createElement("h3");
+ heading.style.fontSize="15px";heading.textContent=catalanDate(d,{weekday:"long",day:"numeric",month:"long"});box.appendChild(heading);
+ const ev=allEvents(d,d).sort((a,b)=>(a.time||"").localeCompare(b.time||""));
+ if(!ev.length){const p=document.createElement("p");p.className="small";p.textContent="No hi ha activitats per a aquest dia.";box.appendChild(p);return;}
+ ev.forEach(e=>{const p=document.createElement("div");p.className="event "+(e.place==="away"?"away":e.priority);p.innerHTML="";
+  const strong=document.createElement("strong");strong.textContent=(e.time?e.time+" · ":"")+e.name;
+  const small=document.createElement("small");small.textContent=e.recurring?"Activitat habitual":(e.kind||"tasca")+" · "+priorityName(e.priority)+(e.notes?" · "+e.notes:"");
+  p.append(strong,small);box.appendChild(p);
  });
 }
+function priorityName(p){return p==="urgent"?"Molt important":p==="important"?"Important":"Poc important";}
+function renderTasks(){
+ const box=$("tasks");box.innerHTML="";
+ const kind=$("filterKind").value,status=$("filterStatus").value;
+ const filtered=tasks.filter(t=>(kind==="all"||t.kind===kind)&&(status==="all"||(status==="done"?t.done:!t.done)));
+ filtered.sort((a,b)=>(a.date+(a.time||"")).localeCompare(b.date+(b.time||"")));
+ if(!filtered.length){const p=document.createElement("p");p.className="small";p.textContent="No hi ha elements amb aquest filtre.";box.appendChild(p);return;}
+ filtered.forEach(t=>{
+  const div=document.createElement("div");div.className="event "+(t.place==="away"?"away":t.priority);
+  if(t.done)div.classList.add("done");
+  const title=document.createElement("strong");title.textContent=t.name;
+  const info=document.createElement("small");info.textContent=catalanDate(parseDate(t.date),{day:"numeric",month:"short",year:"numeric"})+" · "+(t.time||"Sense hora")+" · "+(t.kind||"tasca");
+  const badge=document.createElement("span");badge.className="pill "+(t.place==="away"?"p-away":t.priority==="urgent"?"p-urgent":t.priority==="important"?"p-important":"p-low");badge.textContent=t.place==="away"?"Fora de Sant Sadurní":priorityName(t.priority);
+  const complete=document.createElement("button");complete.className="green";complete.textContent=t.done?"Marca com a pendent":"Marca com a completada";
+  complete.onclick=()=>{t.done=!t.done;save();};
+  const del=document.createElement("button");del.className="red";del.textContent="Elimina";
+  del.onclick=()=>{if(confirm("Vols eliminar aquest element?")){tasks=tasks.filter(x=>x.id!==t.id);save();}};
+  div.append(title,info,document.createElement("br"),badge,document.createElement("br"),complete,del);box.appendChild(div);
+ });
+}
+function renderAll(){renderToday();renderCalendar();renderTasks();}
 $("taskForm").addEventListener("submit",e=>{
  e.preventDefault();
- tasks.push({
- id:Date.now(),
- name:$("name").value.trim(),
- date:$("date").value,
- time:$("time").value,
- notes:$("notes").value.trim(),
- done:false
- });
- save();
- e.target.reset();
- alert("¡Tarea guardada correctamente!");
+ tasks.push({id:Date.now().toString(),name:$("name").value.trim(),kind:$("kind").value,priority:$("priority").value,place:$("place").value,date:$("date").value,time:$("time").value,notes:$("notes").value.trim(),done:false});
+ save();e.target.reset();$("date").value=dateKey(new Date());alert("S'ha desat correctament a la teva agenda.");
 });
+$("filterKind").onchange=renderTasks;$("filterStatus").onchange=renderTasks;
+$("monthMode").onclick=()=>{mode="month";$("monthMode").classList.add("active");$("weekMode").classList.remove("active");renderCalendar();};
+$("weekMode").onclick=()=>{mode="week";$("weekMode").classList.add("active");$("monthMode").classList.remove("active");renderCalendar();};
+$("prev").onclick=()=>{if(mode==="month")shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()-1,1);else selectedDate=dateKey(addDays(parseDate(selectedDate),-7));renderCalendar();};
+$("next").onclick=()=>{if(mode==="month")shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()+1,1);else selectedDate=dateKey(addDays(parseDate(selectedDate),7));renderCalendar();};
 $("voice").onclick=()=>{
  const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!Speech){
- alert("El reconocimiento de voz no está disponible en este navegador.");
- return;
- }
- const recognition=new Speech();
- recognition.lang="es-ES";
- recognition.onresult=e=>{
- $("name").value=e.results[0][0].transcript;
- $("date").value=new Date().toISOString().slice(0,10);
- $("name").focus();
- };
- recognition.start();
+ if(!Speech){$("voiceStatus").textContent="Aquest navegador no ofereix reconeixement de veu. Pots escriure la descripció.";return;}
+ const rec=new Speech();rec.lang="ca-ES";rec.interimResults=false;
+ $("voiceStatus").textContent="T'estic escoltant…";
+ rec.onresult=e=>{$("name").value=e.results[0][0].transcript;$("voiceStatus").textContent="Text reconegut. Completa la data i desa l'element.";};
+ rec.onerror=()=>{$("voiceStatus").textContent="No he pogut reconèixer la veu. Comprova el permís del micròfon.";};
+ rec.onend=()=>{};rec.start();
 };
-$("date").value=new Date().toISOString().slice(0,10);
-render();
+$("notifyBtn").onclick=async()=>{
+ if(!("Notification" in window)){$("notifyStatus").textContent="Aquest navegador no admet notificacions.";return;}
+ const permission=await Notification.requestPermission();
+ $("notifyStatus").textContent=permission==="granted"?"Permís concedit. Rebràs avisos mentre l'agenda pugui executar-se.":"No s'ha concedit el permís de notificacions.";
+};
+function checkReminders(){
+ if(!("Notification" in window)||Notification.permission!=="granted")return;
+ const now=new Date(),today=dateKey(now),mins=now.getHours()*60+now.getMinutes();
+ const candidates=recurringEvents(parseDate(today),parseDate(today)).concat(tasks.filter(t=>t.date===today&&!t.done));
+ candidates.forEach(e=>{
+  if(!e.time)return;
+  const [h,m]=e.time.split(":").map(Number),eventMin=h*60+m;
+  if(eventMin-mins===30){
+   const key="emi-alert-"+e.id+"-"+today;
+   if(!sessionStorage.getItem(key)){new Notification("Recordatori · EMI",{body:e.name+" comença d'aquí a 30 minuts ("+e.time+")."});sessionStorage.setItem(key,"1");}
+  }
+ });
+}
+$("readDayBtn").onclick=()=>{
+ const now=new Date(),today=dateKey(now);
+ const items=allEvents(parseDate(today),parseDate(today)).concat(tasks.filter(t=>t.date===today&&!t.done));
+ const textDay=items.length?"Avui tens: "+items.map(e=>(e.time?e.time+" ":"")+e.name).join(". "):"Avui no tens activitats programades.";
+ if("speechSynthesis" in window){const u=new SpeechSynthesisUtterance(textDay);u.lang="ca-ES";speechSynthesis.cancel();speechSynthesis.speak(u);}else alert(textDay);
+};
+$("date").value=dateKey(new Date());
+renderAll();
+checkReminders();
+setInterval(checkReminders,30000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)checkReminders();});
 </script>
 </body>
 </html>
