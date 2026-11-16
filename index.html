@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#172554">
+<title>Agenda Personal EMI</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f1f5f9;color:#1e293b;font-family:Arial,sans-serif}
+header{background:#172554;color:white;padding:25px 18px;border-radius:0 0 22px 22px}
+header h1{margin:0;font-size:25px}
+header p{margin:8px 0 0;color:#dbeafe}
+main{padding:16px;max-width:650px;margin:auto}
+.card{background:white;padding:17px;border-radius:15px;margin-bottom:15px;box-shadow:0 2px 8px #00000010}
+h2{font-size:18px;margin-top:0}
+input,button{font-size:16px;padding:12px;border-radius:9px}
+input{width:100%;border:1px solid #cbd5e1;margin:5px 0 12px}
+button{border:0;background:#2563eb;color:white;cursor:pointer}
+button:active{opacity:.8}
+.add{width:100%;font-weight:bold}
+.voice{background:#0f766e;width:100%;margin-top:8px}
+.task{padding:12px;border-bottom:1px solid #e2e8f0}
+.task strong{display:block;margin-bottom:5px}
+.task small{color:#64748b}
+.task button{padding:7px 10px;margin:8px 5px 0 0;font-size:13px}
+.done strong{text-decoration:line-through;color:#94a3b8}
+.delete{background:#dc2626}
+.complete{background:#15803d}
+footer{text-align:center;color:#64748b;padding:15px;font-size:13px}
+</style>
+</head>
+<body>
+<header>
+<h1>📅 Agenda Personal EMI</h1>
+<p>Organiza tu día, tus citas y tus proyectos</p>
+</header>
+<main>
+<div class="card">
+<h2>📆 Hoy</h2>
+<div id="today"></div>
+</div>
+<div class="card">
+<h2>➕ Nueva tarea o cita</h2>
+<form id="taskForm">
+<label>Descripción</label>
+<input id="name" placeholder="¿Qué tienes que hacer?" required>
+<label>Fecha</label>
+<input id="date" type="date" required>
+<label>Hora</label>
+<input id="time" type="time">
+<label>Notas</label>
+<input id="notes" placeholder="Detalles (opcional)">
+<button class="add" type="submit">Guardar en mi agenda</button>
+</form>
+<button class="voice" id="voice" type="button">🎙️ Añadir por voz</button>
+</div>
+<div class="card">
+<h2>🏓 Actividades habituales</h2>
+<p>Ping-pong: lunes y miércoles a las 18:15.</p>
+<p>Recuerda mantener tus actividades organizadas.</p>
+</div>
+<div class="card">
+<h2>📋 Mis tareas</h2>
+<div id="tasks"></div>
+</div>
+</main>
+<footer>Agenda Personal EMI · Mi espacio personal</footer>
+<script>
+const $ = id => document.getElementById(id);
+let tasks = JSON.parse(localStorage.getItem("agendaEMI") || "[]");
+function save(){
+ localStorage.setItem("agendaEMI",JSON.stringify(tasks));
+ render();
+}
+function render(){
+ $("today").textContent =
+ new Date().toLocaleDateString("es-ES",
+ {weekday:"long",day:"numeric",month:"long",year:"numeric"});
+ const list=$("tasks");
+ list.innerHTML="";
+ if(!tasks.length){
+ list.innerHTML="<p>Todavía no tienes tareas. ¡Añade la primera!</p>";
+ return;
+ }
+ tasks.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+ tasks.forEach(t=>{
+ const div=document.createElement("div");
+ div.className="task"+(t.done?" done":"");
+ const title=document.createElement("strong");
+ title.textContent=t.name;
+ const info=document.createElement("small");
+ info.textContent=t.date+" · "+(t.time||"Sin hora")+
+ (t.notes?" · "+t.notes:"");
+ const complete=document.createElement("button");
+ complete.className="complete";
+ complete.textContent=t.done?"Pendiente":"Completada";
+ complete.onclick=()=>{
+ t.done=!t.done;
+ save();
+ };
+ const del=document.createElement("button");
+ del.className="delete";
+ del.textContent="Eliminar";
+ del.onclick=()=>{
+ if(confirm("¿Eliminar esta tarea?")){
+ tasks=tasks.filter(x=>x.id!==t.id);
+ save();
+ }
+ };
+ div.append(title,info,document.createElement("br"),complete,del);
+ list.appendChild(div);
+ });
+}
+$("taskForm").addEventListener("submit",e=>{
+ e.preventDefault();
+ tasks.push({
+ id:Date.now(),
+ name:$("name").value.trim(),
+ date:$("date").value,
+ time:$("time").value,
+ notes:$("notes").value.trim(),
+ done:false
+ });
+ save();
+ e.target.reset();
+ alert("¡Tarea guardada correctamente!");
+});
+$("voice").onclick=()=>{
+ const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!Speech){
+ alert("El reconocimiento de voz no está disponible en este navegador.");
+ return;
+ }
+ const recognition=new Speech();
+ recognition.lang="es-ES";
+ recognition.onresult=e=>{
+ $("name").value=e.results[0][0].transcript;
+ $("date").value=new Date().toISOString().slice(0,10);
+ $("name").focus();
+ };
+ recognition.start();
+};
+$("date").value=new Date().toISOString().slice(0,10);
+render();
+</script>
+</body>
+</html>
