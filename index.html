@@ -34,7 +34,7 @@ footer{text-align:center;color:#64748b;padding:15px;font-size:13px}
 <body>
 <header>
 <h1>📅 Agenda Personal EMI</h1>
-<p>Organiza tu día, tus citas y tus proyectos</p>
+<p>Organitza el teu dia, les teves cites i els teus projectes</p>
 </header>
 <main>
 <div class="card">
@@ -45,28 +45,28 @@ footer{text-align:center;color:#64748b;padding:15px;font-size:13px}
 <h2>➕ Nova tasca</h2>
 <form id="taskForm">
 Descripció
-<input id="name" placeholder="¿Qué tienes que hacer?" required>
-<label>Fecha</label>
+<input id="name" placeholder="¿Què has de fer?" required>
+<label>Data</label>
 <input id="date" type="date" required>
 <label>Hora</label>
 <input id="time" type="time">
-<label>Notas</label>
-<input id="notes" placeholder="Detalles (opcional)">
-<button class="add" type="submit">Guardar en mi agenda</button>
+<label>Notes</label>
+<input id="notes" placeholder="Detalls (opcional)">
+<button class="add" type="submit">Desa a la meva agenda</button>
 </form>
-<button class="voice" id="voice" type="button">🎙️ Añadir por voz</button>
+<button class="voice" id="voice" type="button">🎙️ Afegeix per veu</button>
 </div>
 <div class="card">
-<h2>🏓 Actividades habituales</h2>
-<p>Ping-pong: lunes y miércoles a las 18:15.</p>
-<p>Recuerda mantener tus actividades organizadas.</p>
+<h2>🏓 Activitats habituals</h2>
+<p>Ping-pong: dilluns i dimecres a las 18:15.</p>
+<p>Recorda mantenir les activitats organitzades.</p>
 </div>
 <div class="card">
-<h2>📋 Mis tareas</h2>
+<h2>📋 Les meves tasques</h2>
 <div id="tasks"></div>
 </div>
 </main>
-<footer>Agenda Personal EMI · Mi espacio personal</footer>
+<footer>Agenda Personal EMI · El meu espai personal</footer>
 <script>
 const $ = id => document.getElementById(id);
 let tasks = JSON.parse(localStorage.getItem("agendaEMI") || "[]");
@@ -76,12 +76,12 @@ function save(){
 }
 function render(){
  $("today").textContent =
- new Date().toLocaleDateString("es-ES",
+ new Date().toLocaleDateString("ca-ES",
  {weekday:"long",day:"numeric",month:"long",year:"numeric"});
  const list=$("tasks");
  list.innerHTML="";
  if(!tasks.length){
- list.innerHTML="<p>Todavía no tienes tareas. ¡Añade la primera!</p>";
+ list.innerHTML="<p>Encara no tens tasques. Afegeix la primera!</p>";
  return;
  }
  tasks.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
@@ -91,20 +91,20 @@ function render(){
  const title=document.createElement("strong");
  title.textContent=t.name;
  const info=document.createElement("small");
- info.textContent=t.date+" · "+(t.time||"Sin hora")+
+ info.textContent=t.date+" · "+(t.time||"Sense hora")+
  (t.notes?" · "+t.notes:"");
  const complete=document.createElement("button");
  complete.className="complete";
- complete.textContent=t.done?"Pendiente":"Completada";
+ complete.textContent=t.done?"Pendent":"Completada";
  complete.onclick=()=>{
  t.done=!t.done;
  save();
  };
  const del=document.createElement("button");
  del.className="delete";
- del.textContent="Eliminar";
+ del.textContent="Elimina";
  del.onclick=()=>{
- if(confirm("¿Eliminar esta tarea?")){
+ if(confirm("¿Vols eliminar aquesta tasca?")){
  tasks=tasks.filter(x=>x.id!==t.id);
  save();
  }
