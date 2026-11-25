@@ -201,7 +201,15 @@ function renderSelected(){
   if(e.travelTime)details.push("Trajecte estimat: "+e.travelTime+" min");
   if(e.notes)details.push(e.notes);
   small.textContent=details.join(" · ");
-  p.append(strong,small);box.appendChild(p);
+  p.append(strong,small);
+  const task=tasks.find(t=>t.id===e.id);
+  if(task){
+   const edit=document.createElement("button");
+   edit.type="button";edit.className="secondary";edit.textContent="Editar";
+   edit.onclick=()=>editTask(task.id);
+   p.appendChild(edit);
+  }
+  box.appendChild(p);
  });
 }
 function priorityName(p){return p==="urgent"?"Molt important":p==="important"?"Important":"Poc important";}
