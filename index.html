@@ -45,6 +45,8 @@ label{display:block;font-size:14px;font-weight:600;margin-top:3px}
 .notice{padding:10px;border-radius:9px;background:#eff6ff;color:#1e40af;font-size:13px;line-height:1.4}
 footer{text-align:center;color:var(--muted);padding:15px;font-size:13px}
 @media(max-width:420px){main{padding:10px}.card{padding:13px}.day{min-height:54px;font-size:12px}.grid2{gap:7px}}
+.event.holiday{background:#fff4d8;border-left:4px solid #c58a16;color:#65480b}
+.event.holiday small{color:#795b20}
 </style>
 </head>
 <body>
@@ -148,11 +150,25 @@ function parseDate(s){const [y,m,d]=s.split("-").map(Number);return new Date(y,m
 function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x;}
 function catalanDate(d,opts){return d.toLocaleDateString("ca-ES",opts);}
 function save(){localStorage.setItem(STORE,JSON.stringify(tasks));renderAll();}
-function recurringEvents(start,end){
- // No s'afegeixen cites recurrents inventades. Només es mostren les tasques desades.
- return [];
+function holidayEvents(start,end){
+ // Calendari oficial de Catalunya + festius locals de Sant Sadurní d'Anoia.
+ // No s'afegeixen festius exclusius d'altres comunitats autònomes.
+ const data={
+  2026:[
+   ['2026-01-01','Cap d’Any'],['2026-01-06','Reis'],['2026-04-03','Divendres Sant'],['2026-04-06','Dilluns de Pasqua'],['2026-05-01','Festa del Treball'],['2026-06-24','Sant Joan'],['2026-08-15','l’Assumpció'],['2026-09-08','Festa local de Sant Sadurní'],['2026-09-11','Diada Nacional de Catalunya'],['2026-10-12','Festa Nacional d’Espanya'],['2026-11-30','Festa Major de Sant Sadurní'],['2026-12-08','la Immaculada'],['2026-12-25','Nadal'],['2026-12-26','Sant Esteve']
+  ],
+  2027:[
+   ['2027-01-01','Cap d’Any'],['2027-01-06','Reis'],['2027-03-26','Divendres Sant'],['2027-03-29','Dilluns de Pasqua'],['2027-05-01','Festa del Treball'],['2027-06-24','Sant Joan'],['2027-09-08','Festa local de Sant Sadurní'],['2027-09-11','Diada Nacional de Catalunya'],['2027-10-12','Festa Nacional d’Espanya'],['2027-11-01','Tots Sants'],['2027-11-29','Festa Major de Sant Sadurní'],['2027-12-06','Dia de la Constitució'],['2027-12-08','la Immaculada'],['2027-12-25','Nadal']
+  ]
+ };
+ const out=[];
+ for(let y=start.getFullYear();y<=end.getFullYear();y++){
+  (data[y]||[]).forEach(([date,name])=>{if(date>=dateKey(start)&&date<=dateKey(end))out.push({id:'holiday-'+date,name:'🎉 '+name,date,time:'',kind:'festiu',priority:'important',isHoliday:true});});
+ }
+ return out;
 }
-function allEvents(start,end){return tasks.filter(t=>t.date>=dateKey(start)&&t.date<=dateKey(end)).concat(recurringEvents(start,end));}
+function recurringEvents(start,end){ return []; }
+function allEvents(start,end){return tasks.filter(t=>t.date>=dateKey(start)&&t.date<=dateKey(end)).concat(recurringEvents(start,end),holidayEvents(start,end));}
 function renderToday(){
  const now=new Date();
  $("today").textContent=catalanDate(now,{weekday:"long",day:"numeric",month:"long",year:"numeric"});
@@ -192,10 +208,10 @@ function renderSelected(){
  heading.style.fontSize="15px";heading.textContent=catalanDate(d,{weekday:"long",day:"numeric",month:"long"});box.appendChild(heading);
  const ev=allEvents(d,d).sort((a,b)=>(a.time||"").localeCompare(b.time||""));
  if(!ev.length){const p=document.createElement("p");p.className="small";p.textContent="No hi ha activitats per a aquest dia.";box.appendChild(p);return;}
- ev.forEach(e=>{const p=document.createElement("div");p.className="event "+(e.place==="away"?"away":e.priority);p.innerHTML="";
+ ev.forEach(e=>{const p=document.createElement("div");p.className="event "+(e.isHoliday?"holiday":(e.place==="away"?"away":e.priority));p.innerHTML="";
   const strong=document.createElement("strong");strong.textContent=(e.time?e.time+" · ":"")+e.name;
   const small=document.createElement("small");
-  const details=[e.kind||"tasca",priorityName(e.priority)];
+  const details=[e.isHoliday?"FESTIU OFICIAL":"" ,e.kind||"tasca",priorityName(e.priority)].filter(Boolean);
   if(e.locationName)details.push(e.locationName);
   if(e.duration)details.push("Durada estimada: "+e.duration+" min");
   if(e.travelTime)details.push("Trajecte estimat: "+e.travelTime+" min");
