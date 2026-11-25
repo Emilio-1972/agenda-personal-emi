@@ -239,14 +239,80 @@ $("monthMode").onclick=()=>{mode="month";$("monthMode").classList.add("active");
 $("weekMode").onclick=()=>{mode="week";$("weekMode").classList.add("active");$("monthMode").classList.remove("active");renderCalendar();};
 $("prev").onclick=()=>{if(mode==="month")shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()-1,1);else selectedDate=dateKey(addDays(parseDate(selectedDate),-7));renderCalendar();};
 $("next").onclick=()=>{if(mode==="month")shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()+1,1);else selectedDate=dateKey(addDays(parseDate(selectedDate),7));renderCalendar();};
+let voiceRecognition=null;
+let voiceListening=false;
+let voiceFinalText="";
+let voiceRestartTimer=null;
+let voiceFatalError=false;
+let voiceStartedAt=0;
+
+function finishVoiceDictation(message){
+ voiceListening=false;
+ if(voiceRestartTimer){clearTimeout(voiceRestartTimer);voiceRestartTimer=null;}
+ if(voiceRecognition){try{voiceRecognition.stop();}catch(e){}}
+ $("voice").textContent="🎙️ Afegeix per veu";
+ $("voiceStatus").textContent=message || (voiceFinalText
+  ? "Dictat acabat. Revisa el text i completa la data abans de desar."
+  : "No s'ha reconegut cap text. Torna-ho a provar o escriu la descripció.");
+}
+
 $("voice").onclick=()=>{
+ if(voiceListening){
+  const elapsed=Date.now()-voiceStartedAt;
+  if(elapsed<15000){
+   const remaining=Math.ceil((15000-elapsed)/1000);
+   $("voiceStatus").textContent="Mantén el dictat actiu "+remaining+" segons més com a mínim. Pots continuar parlant.";
+   return;
+  }
+  finishVoiceDictation();return;
+ }
  const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
  if(!Speech){$("voiceStatus").textContent="Aquest navegador no ofereix reconeixement de veu. Pots escriure la descripció.";return;}
- const rec=new Speech();rec.lang="ca-ES";rec.interimResults=false;
- $("voiceStatus").textContent="T'estic escoltant…";
- rec.onresult=e=>{$("name").value=e.results[0][0].transcript;$("voiceStatus").textContent="Text reconegut. Completa la data i desa l'element.";};
- rec.onerror=()=>{$("voiceStatus").textContent="No he pogut reconèixer la veu. Comprova el permís del micròfon.";};
- rec.onend=()=>{};rec.start();
+ voiceFinalText=$("name").value.trim();
+ voiceListening=true;
+ voiceFatalError=false;
+ voiceStartedAt=Date.now();
+ $("voice").textContent="■ Acabar dictat";
+ $("voiceStatus").textContent="T'estic escoltant. Mantindré el dictat actiu almenys 15 segons i el reiniciaré si el navegador el talla. Després prem «Acabar dictat» quan hagis acabat.";
+ const startRecognition=()=>{
+  if(!voiceListening)return;
+  try{
+   voiceRecognition=new Speech();
+   voiceRecognition.lang="ca-ES";
+   voiceRecognition.continuous=true;
+   voiceRecognition.interimResults=true;
+   voiceRecognition.maxAlternatives=1;
+   voiceRecognition.onresult=e=>{
+    let interim="";
+    for(let i=e.resultIndex;i<e.results.length;i++){
+     const part=e.results[i][0].transcript.trim();
+     if(e.results[i].isFinal&&part)voiceFinalText=(voiceFinalText+" "+part).trim();
+     else if(part)interim=(interim+" "+part).trim();
+    }
+    $("name").value=(voiceFinalText+(interim?" "+interim:"")).trim();
+    $("voiceStatus").textContent=interim?"T'estic escoltant: "+interim:"Text capturat. Pots continuar parlant o prémer «Acabar dictat».";
+   };
+   voiceRecognition.onerror=e=>{
+    if(["not-allowed","service-not-allowed","audio-capture"].includes(e.error)){
+     voiceFatalError=true;
+     finishVoiceDictation("No puc accedir al micròfon ("+e.error+"). Revisa el permís del micròfon al navegador.");
+    }else if(e.error==="network"){
+     $("voiceStatus").textContent="S'ha interromput temporalment el servei de veu. Intento reprendre el dictat; mantén aquesta finestra oberta.";
+    }else if(e.error!=="no-speech"&&e.error!=="aborted"){
+     $("voiceStatus").textContent="Error de dictat: "+e.error+". Torna-ho a provar.";
+    }
+   };
+   voiceRecognition.onend=()=>{
+    if(voiceListening&&!voiceFatalError)voiceRestartTimer=setTimeout(startRecognition,300);
+    else if(!voiceListening)$("voice").textContent="🎙️ Afegeix per veu";
+   };
+   voiceRecognition.start();
+  }catch(err){
+   voiceFatalError=true;
+   finishVoiceDictation("No s'ha pogut iniciar el dictat. Comprova el permís del micròfon i torna-ho a provar.");
+  }
+ };
+ startRecognition();
 };
 $("notifyBtn").onclick=async()=>{
  if(!("Notification" in window)){$("notifyStatus").textContent="Aquest navegador no admet notificacions.";return;}
