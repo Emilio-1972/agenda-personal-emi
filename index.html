@@ -137,6 +137,7 @@ footer{text-align:center;color:var(--muted);padding:15px;font-size:13px}
 const $ = id => document.getElementById(id);
 const STORE = "agendaEMI";
 let tasks = [];
+let editingTaskId = null;
 try { tasks = JSON.parse(localStorage.getItem(STORE) || "[]"); if (!Array.isArray(tasks)) tasks=[]; } catch(e) { tasks=[]; }
 const pad=n=>String(n).padStart(2,"0");
 let shownMonth = new Date(); shownMonth.setDate(1);
@@ -221,18 +222,34 @@ function renderTasks(){
   if(t.travelTime)details.push("Trajecte: "+t.travelTime+" min");
   info.textContent=details.join(" · ");
   const badge=document.createElement("span");badge.className="pill "+(t.place==="away"?"p-away":t.priority==="urgent"?"p-urgent":t.priority==="important"?"p-important":"p-low");badge.textContent=t.place==="away"?"Fora de Sant Sadurní":priorityName(t.priority);
+  const edit=document.createElement("button");edit.className="secondary";edit.textContent="Editar";
+  edit.onclick=()=>editTask(t.id);
   const complete=document.createElement("button");complete.className="green";complete.textContent=t.done?"Marca com a pendent":"Marca com a completada";
   complete.onclick=()=>{t.done=!t.done;save();};
   const del=document.createElement("button");del.className="red";del.textContent="Elimina";
   del.onclick=()=>{if(confirm("Vols eliminar aquest element?")){tasks=tasks.filter(x=>x.id!==t.id);save();}};
-  div.append(title,info,document.createElement("br"),badge,document.createElement("br"),complete,del);box.appendChild(div);
+  div.append(title,info,document.createElement("br"),badge,document.createElement("br"),edit,complete,del);box.appendChild(div);
  });
 }
 function renderAll(){renderToday();renderCalendar();renderTasks();}
+function editTask(id){
+ const t=tasks.find(item=>item.id===id);if(!t)return;
+ editingTaskId=id;
+ $("name").value=t.name||"";$("kind").value=t.kind||"tasca";$("priority").value=t.priority||"low";
+ $("place").value=t.place||"local";$("locationName").value=t.locationName||"";
+ $("date").value=t.date||dateKey(new Date());$("time").value=t.time||"";
+ $("duration").value=t.duration||"";$("travelTime").value=t.travelTime||"";$("notes").value=t.notes||"";
+ const submit=$("taskForm").querySelector('button[type="submit"]');submit.textContent="Desa els canvis";
+ $("taskForm").scrollIntoView({behavior:"smooth",block:"start"});$("name").focus();
+}
 $("taskForm").addEventListener("submit",e=>{
  e.preventDefault();
- tasks.push({id:Date.now().toString(),name:$("name").value.trim(),kind:$("kind").value,priority:$("priority").value,place:$("place").value,locationName:$("locationName").value.trim(),date:$("date").value,time:$("time").value,duration:$("duration").value,travelTime:$("travelTime").value,notes:$("notes").value.trim(),done:false});
- save();e.target.reset();$("date").value=dateKey(new Date());alert("S'ha desat correctament a la teva agenda.");
+ const values={name:$("name").value.trim(),kind:$("kind").value,priority:$("priority").value,place:$("place").value,locationName:$("locationName").value.trim(),date:$("date").value,time:$("time").value,duration:$("duration").value,travelTime:$("travelTime").value,notes:$("notes").value.trim()};
+ if(editingTaskId){const existing=tasks.find(t=>t.id===editingTaskId);if(existing)Object.assign(existing,values);}
+ else tasks.push({id:Date.now().toString(),...values,done:false});
+ editingTaskId=null;save();e.target.reset();$("date").value=dateKey(new Date());
+ $("taskForm").querySelector('button[type="submit"]').textContent="Desa a la meva agenda";
+ alert("S'ha desat correctament a la teva agenda.");
 });
 $("filterKind").onchange=renderTasks;$("filterStatus").onchange=renderTasks;
 $("monthMode").onclick=()=>{mode="month";$("monthMode").classList.add("active");$("weekMode").classList.remove("active");renderCalendar();};
