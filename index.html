@@ -138,10 +138,10 @@ const $ = id => document.getElementById(id);
 const STORE = "agendaEMI";
 let tasks = [];
 try { tasks = JSON.parse(localStorage.getItem(STORE) || "[]"); if (!Array.isArray(tasks)) tasks=[]; } catch(e) { tasks=[]; }
+const pad=n=>String(n).padStart(2,"0");
 let shownMonth = new Date(); shownMonth.setDate(1);
 let selectedDate = dateKey(new Date());
 let mode = "month";
-const pad=n=>String(n).padStart(2,"0");
 function dateKey(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());}
 function parseDate(s){const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d);}
 function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x;}
